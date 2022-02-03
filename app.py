@@ -41,20 +41,28 @@ def callback():
 
     return 'OK'
 
+def start_watch(id): #ストップウォッチ計測開始
+    message = "ストップウォッチがスタートしました。"
+    start[id] = time()
+    return message
+
+def stop_watch(id): #ストップウォッチ計測終了
+    end = time()
+    difference = int(end - start[id])
+    hour = difference // 3600
+    minute = (difference % 3600) // 60
+    second = difference % 60
+    message = f"計測時間は{hour}時間{minute}分{second}秒です。"
+    return message
+
 start = {}
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
-    if event.message.text == "ストップウォッチ":
-        reply_message = "ストップウォッチがスタートしました。"
-        start[user_id] = time()
+    if event.message.text == "スタート":
+        reply_message = start_watch(user_id) #ストップウォッチ開始
     elif event.message.text == "ストップ":
-        end = time()
-        difference = int(end - start[user_id])
-        hour = difference // 3600
-        minute = (difference % 3600) // 60
-        second = difference % 60
-        reply_message = f"計測時間は{hour}時間{minute}分{second}秒です。"
+        reply_message = stop_watch(user_id) #ストップウォッチ計測時間代入
     else:
         reply_message = event.message.text
     line_bot_api.reply_message(
