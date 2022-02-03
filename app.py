@@ -41,9 +41,13 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    if event.message.text == "ストップウォッチ":
+        reply_message = "ストップウォッチがスタートしました。"
+    else:
+        reply_message = f"計測時間は0時間0分0秒です。"
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        TextSendMessage(text=reply_message))
 
 
 if __name__ == "__main__":
