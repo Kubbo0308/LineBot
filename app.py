@@ -46,8 +46,8 @@ def start_watch(id): #ストップウォッチ計測開始
     if not check_start: #スタートしてない時
         message = "ストップウォッチがスタートしました。"
         start[id] = time()
-        check = True
-        return message, check
+        check_start = True
+        return message
     elif check_start: #既にスタートしてる時
         message = "ストップウォッチはスタートしています。"
         return message
@@ -61,7 +61,7 @@ def stop_watch(id): #ストップウォッチ計測終了
         minute = (difference % 3600) // 60
         second = difference % 60
         message = f"計測時間は{hour}時間{minute}分{second}秒です。"
-        check = False
+        check_start = False
         return message
     elif not check_start: #スタートしてない時
         message = "ストップウォッチはまだスタートしていません。"
