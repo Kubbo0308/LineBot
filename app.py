@@ -1,4 +1,5 @@
 
+from re import S
 from flask import Flask, request, abort
 
 from linebot import (
@@ -11,6 +12,8 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
 import os
+
+from time import time
 
 app = Flask(__name__)
 
@@ -38,13 +41,22 @@ def callback():
 
     return 'OK'
 
-
+start = {}
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_id = event.source.user_id
     if event.message.text == "ストップウォッチ":
         reply_message = "ストップウォッチがスタートしました。"
+        start[user_id] = time()
+    elif event.message.text == "ストップ":
+        end = time()
+        difference = int(end - start[user_id])
+        hour = difference // 3600
+        minute = (difference % 3600) // 60
+        second = difference % 60
+        reply_message = f"計測時間は{hour}時間{minute}分{second}秒です。"
     else:
-        reply_message = f"計測時間は0時間0分0秒です。"
+        reply_message = event.message.text
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=reply_message))
