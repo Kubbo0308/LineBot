@@ -41,28 +41,43 @@ def callback():
 
     return 'OK'
 
-def start_watch(id): #ストップウォッチ計測開始
-    message = "ストップウォッチがスタートしました。"
-    start[id] = time()
-    return message
+def start_watch(id, check): #ストップウォッチ計測開始
+    if not check: #スタートしてない時
+        message = "ストップウォッチがスタートしました。"
+        start[id] = time()
+        check = True
+        return message, check
+    elif check: #既にスタートしてる時
+        message = "ストップウォッチはスタートしています。"
+        return message, check
 
-def stop_watch(id): #ストップウォッチ計測終了
-    end = time()
-    difference = int(end - start[id])
-    hour = difference // 3600
-    minute = (difference % 3600) // 60
-    second = difference % 60
-    message = f"計測時間は{hour}時間{minute}分{second}秒です。"
-    return message
+def stop_watch(id, check): #ストップウォッチ計測終了
+    if check: #既にスタートしてる時
+        end = time()
+        difference = int(end - start[id])
+        hour = difference // 3600
+        minute = (difference % 3600) // 60
+        second = difference % 60
+        message = f"計測時間は{hour}時間{minute}分{second}秒です。"
+        check = False
+        return message, check
+    elif not check: #スタートしてない時
+        message = "ストップウォッチはまだスタートしていません。"
+        return message, check
 
-start = {}
+start = {} #ストップウォッチのスタート時間初期化
+check_start = False #Trueはスタート中、Falseはストップ中
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
     if event.message.text == "スタート":
-        reply_message = start_watch(user_id) #ストップウォッチ開始
+        reply_message = start_watch(user_id, check_start)[0] #ストップウォッチ開始
+        global check_start
+        check_start = start_watch(user_id, check_start)[1] #チェック結果代入
     elif event.message.text == "ストップ":
-        reply_message = stop_watch(user_id) #ストップウォッチ計測時間代入
+        reply_message = stop_watch(user_id)[0] #ストップウォッチ計測時間代入
+        global check_start
+        check_start = stop_watch(user_id)[1] #チェック結果代入
     else:
         reply_message = event.message.text
     line_bot_api.reply_message(
